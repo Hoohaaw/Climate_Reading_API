@@ -1,17 +1,29 @@
-import express from 'express'
+import 'dotenv/config'
+import { ApolloServer } from '@apollo/server'
+import { startStandaloneServer } from '@apollo/server/standalone'
+import mongoose from 'mongoose'
+import typeDefs from './graphql/typeDefs.js'
+import resolvers from './graphql/resolvers.js'
+import { getUser } from './middleware/jwt.js'
 
-const app = express()
 const PORT = process.env.PORT || 3000
 
-// Parse JSON bodies
-app.use(express.json())
+async function start() {
+  // 1. Connect to MongoDB
+  await mongoose.connect(process.env.MONGODB_URI)
+  console.log('Connected to MongoDB')
 
-// Routes
-app.get('/', (req, res) => {
-  res.json({ message: 'Climate API is running' })
-})
+  // 2. Create Apollo Server
+  const server = new ApolloServer({ typeDefs, resolvers })
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+  // 3. Start server with auth context
+  const { url } = await startStandaloneServer(server, {
+    context: async ({ req }) => ({ user: getUser(req) }),
+    listen: { port: PORT }
+  })
+
+  console.log(`Server running at ${url}`)
+  console.log(`GraphQL: ${url}`)
+}
+
+start()
