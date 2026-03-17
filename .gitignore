@@ -38,3 +38,6 @@ coverage/
 .CLAUDE.md
 CLAUDE.md
 .claude/
+
+# Dataset
+src/seeds/GlobalLandTemperaturesByCity.csv
