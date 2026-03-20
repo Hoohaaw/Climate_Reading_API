@@ -17,13 +17,13 @@ const resolvers = {
 
       if (city) {
         const cityDoc = await City.findOne({ name: city })
-        if (!cityDoc) return []
+        if (!cityDoc) throw new GraphQLError('City not found', { extensions: { code: 'NOT_FOUND', status: 404 } })
         filter.city = cityDoc._id
       }
 
       if (country) {
         const countryDoc = await Country.findOne({ name: country })
-        if (!countryDoc) return []
+        if (!countryDoc) throw new GraphQLError('Country not found', { extensions: { code: 'NOT_FOUND', status: 404 } })
         const cities = await City.find({ country: countryDoc._id })
         filter.city = { $in: cities.map(c => c._id) }
       }
@@ -49,7 +49,7 @@ const resolvers = {
     cities: async (parent, { country }) => {
       if (country) {
         const countryDoc = await Country.findOne({ name: country })
-        if (!countryDoc) return []
+        if (!countryDoc) throw new GraphQLError('Country not found', { extensions: { code: 'NOT_FOUND', status: 404 } })
         return await City.find({ country: countryDoc._id })
       }
       return await City.find()
