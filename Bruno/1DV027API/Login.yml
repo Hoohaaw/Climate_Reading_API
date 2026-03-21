@@ -1,0 +1,41 @@
+info:
+  name: Login
+  type: graphql
+  seq: 3
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |
+      mutation Login ($password: String!, $loginEmail: String!) {
+            login(email: $loginEmail, password: $password) {
+          token
+        }
+      }
+    variables: |-
+      {
+        "loginEmail": "{{correctEmail}}",
+        "password": "alexpalmpassword"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Status is 200', function() {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Response has JWT token', function() {
+            const token = res.getBody().data.login.token;
+            expect(token).to.be.a('string');
+            bru.setVar('token', token);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

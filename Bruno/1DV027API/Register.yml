@@ -1,0 +1,60 @@
+info:
+  name: Register
+  type: graphql
+  seq: 1
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      mutation {
+        register(email: "{{randomEmail}}", username: "{{randomUsername}}", password: "password1234") {
+          token
+        }
+      }
+    variables: |-
+      {
+        "username": "{{username}}",
+        "password": "{{password}}",
+        "email": "{{email}}"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const randomNum = Math.floor(Math.random() * 100000);
+        bru.setVar('randomEmail', `testuser${randomNum}@test.com`);
+        bru.setVar('randomUsername', `testuser${randomNum}`);
+    - type: tests
+      code: |-
+        test('Status is 200', function() {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Response has JWT token', function() {
+            const token = res.getBody().data.register.token;
+            expect(token).to.be.a('string');
+            bru.setVar('token', token);
+        });
+
+        test('Token is valid JWT format', function() {
+            const token = res.getBody().data.register.token;
+            expect(token.split('.')).to.have.lengthOf(3);
+        });
+
+        test('Response time is acceptable', function() {
+            expect(res.getResponseTime()).to.be.below(1000);
+        });
+
+        test('No errors on success', function() {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

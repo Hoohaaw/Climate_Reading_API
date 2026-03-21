@@ -1,0 +1,46 @@
+info:
+  name: Countries
+  type: graphql
+  seq: 5
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      {
+        countries {
+          id
+          name
+        }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Status is 200', function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Returns array of countries', function () {
+            expect(res.getBody().data.countries).to.be.an('array');
+        });
+
+        test('Countries array is not empty', function () {
+            expect(res.getBody().data.countries.length).to.be.above(0);
+        });
+
+        test('Each country has id and name', function () {
+            res.getBody().data.countries.forEach(c => {
+                expect(c).to.have.property('id');
+                expect(c).to.have.property('name');
+            });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

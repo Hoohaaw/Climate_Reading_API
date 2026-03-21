@@ -1,0 +1,43 @@
+info:
+  name: Faulty Login
+  type: graphql
+  seq: 4
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |
+      mutation Login ($password: String!, $loginEmail: String!) {
+            login(email: $loginEmail, password: $password) {
+          token
+        }
+      }
+    variables: " {
+
+      \    \"loginEmail\":\"{{loginEmail}}\",
+
+      \    \"password\":\"{{wrongPassword}}\"
+
+      \ }
+
+      \ "
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Wrong password should return error', function () {
+            expect(res.getBody().errors[0].message).to.equal('Invalid credentials');
+        });
+
+        test('Wrong password should return status code 401', function () {
+            expect(res.getBody().errors[0].extensions.status).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

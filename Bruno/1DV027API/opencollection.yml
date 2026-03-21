@@ -1,0 +1,38 @@
+opencollection: 1.0.0
+
+info:
+  name: 1DV027API
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: username
+      value: alexpalmtestuser
+    - name: password
+      value: alexpalmtestpassword
+    - name: email
+      value: alexpalm@test.com
+    - name: correctEmail
+      value: alex.cj.palm@proton.me
+    - name: loginEmail
+      value: alex.cj.palm@proton.me
+    - name: wrongPassword
+      value: wrongPassword1234
+    - name: cityId
+      value: "69b1640c3d5d99e930cc4ca1"
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

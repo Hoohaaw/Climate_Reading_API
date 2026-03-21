@@ -1,0 +1,39 @@
+info:
+  name: Non Existent Country
+  type: graphql
+  seq: 6
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      query GetCountry($name: String!) {
+        country(name: $name) {
+          id
+          name
+        }
+      }
+    variables: |-
+      {
+        "name": "FakeCountryXYZ"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Non-existent country returns error', function () {
+            expect(res.getBody().errors).to.not.be.undefined;
+        });
+
+        test('Non-existent country error code is NOT_FOUND', function () {
+            expect(res.getBody().errors[0].extensions.code).to.equal('NOT_FOUND');
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

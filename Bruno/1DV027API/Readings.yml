@@ -1,0 +1,48 @@
+info:
+  name: Readings
+  type: graphql
+  seq: 7
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      query {
+        readings(limit: 10, offset: 0) {
+          id
+          date
+          averageTemperature
+          averageTemperatureUncertainty
+          city {
+            name
+          }
+        }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Status is 200', function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Returns array of readings', function () {
+            expect(res.getBody().data.readings).to.be.an('array');
+        });
+
+        test('Each reading has expected fields', function () {
+            res.getBody().data.readings.forEach(r => {
+                expect(r).to.have.property('id');
+                expect(r).to.have.property('date');
+                expect(r).to.have.property('averageTemperature');
+            });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

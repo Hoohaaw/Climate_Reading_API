@@ -1,0 +1,46 @@
+info:
+  name: Create Reading
+  type: graphql
+  seq: 8
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      mutation CreateReading($input: ReadingInput!) {
+        createReading(input: $input) {
+          id
+          date
+          averageTemperature
+          averageTemperatureUncertainty
+        }
+      }
+    variables: |-
+      {
+        "input": {
+          "cityId": "{{cityId}}",
+          "date": "2024-01-01",
+          "averageTemperature": 10.5,
+          "averageTemperatureUncertainty": 0.5
+        }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Unauthenticated createReading returns error', function () {
+            expect(res.getBody().errors).to.be.an('array');
+        });
+
+        test('Unauthenticated error code is UNAUTHORIZED', function () {
+            expect(res.getBody().errors[0].extensions.code).to.equal('UNAUTHORIZED');
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
