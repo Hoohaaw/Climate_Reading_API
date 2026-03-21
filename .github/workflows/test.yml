@@ -14,4 +14,4 @@ jobs:
         run: npm install -g @usebruno/cli
 
       - name: Run Bruno tests
-        run: bru run Bruno/1DV027API
+        run: cd Bruno/1DV027API && bru run
