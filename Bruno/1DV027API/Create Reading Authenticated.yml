@@ -49,7 +49,8 @@ runtime:
         });
 
         test('Created reading has correct date', function () {
-            expect(res.getBody().data.createReading.date).to.include('2024');
+            const year = new Date(parseInt(res.getBody().data.createReading.date)).getFullYear();
+            expect(year).to.equal(2024);
         });
 
         test('Created reading has nested city', function () {
