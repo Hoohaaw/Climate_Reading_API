@@ -1,0 +1,47 @@
+info:
+  name: Cities By Country
+  type: graphql
+  seq: 10
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      query CitiesByCountry($country: String) {
+        cities(country: $country) {
+          id
+          name
+        }
+      }
+    variables: |-
+      {
+        "country": "Sweden"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Status is 200', function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Returns array of cities for Sweden', function () {
+            expect(res.getBody().data.cities).to.be.an('array');
+        });
+
+        test('Cities array for Sweden is not empty', function () {
+            expect(res.getBody().data.cities.length).to.be.above(0);
+        });
+
+        test('No errors on success', function () {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

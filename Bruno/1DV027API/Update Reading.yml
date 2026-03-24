@@ -1,0 +1,54 @@
+info:
+  name: Update Reading
+  type: graphql
+  seq: 17
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    query: |-
+      mutation UpdateReading($id: ID!, $input: ReadingInput!) {
+        updateReading(id: $id, input: $input) {
+          id
+          date
+          averageTemperature
+        }
+      }
+    variables: |-
+      {
+        "id": "{{readingId}}",
+        "input": {
+          "cityId": "{{cityId}}",
+          "date": "2024-06-01",
+          "averageTemperature": 22.0,
+          "averageTemperatureUncertainty": 0.2
+        }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Authenticated updateReading returns no errors', function () {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+
+        test('Updated reading has the same id', function () {
+            expect(res.getBody().data.updateReading.id).to.equal(bru.getVar('readingId'));
+        });
+
+        test('Updated reading reflects new temperature', function () {
+            expect(res.getBody().data.updateReading.averageTemperature).to.equal(22.0);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

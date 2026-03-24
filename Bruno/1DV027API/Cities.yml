@@ -1,0 +1,50 @@
+info:
+  name: Cities
+  type: graphql
+  seq: 9
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      {
+        cities {
+          id
+          name
+          latitude
+          longitude
+        }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Status is 200', function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Returns array of cities', function () {
+            expect(res.getBody().data.cities).to.be.an('array');
+        });
+
+        test('Cities array is not empty', function () {
+            expect(res.getBody().data.cities.length).to.be.above(0);
+        });
+
+        test('Each city has required fields', function () {
+            res.getBody().data.cities.forEach(c => {
+                expect(c).to.have.property('id');
+                expect(c).to.have.property('name');
+                expect(c).to.have.property('latitude');
+                expect(c).to.have.property('longitude');
+            });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

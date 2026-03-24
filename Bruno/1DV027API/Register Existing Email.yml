@@ -1,0 +1,40 @@
+info:
+  name: Register Existing Email
+  type: graphql
+  seq: 23
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      mutation Register($email: String!, $username: String!, $password: String!) {
+        register(email: $email, username: $username, password: $password) {
+          token
+        }
+      }
+    variables: |-
+      {
+        "email": "{{correctEmail}}",
+        "username": "duplicateuser",
+        "password": "somepassword123"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Duplicate email register returns error', function () {
+            expect(res.getBody().errors).to.not.be.undefined;
+        });
+
+        test('Duplicate email error status is 400', function () {
+            expect(res.getBody().errors[0].extensions.status).to.equal(400);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

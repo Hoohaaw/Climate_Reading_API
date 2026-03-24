@@ -1,0 +1,43 @@
+info:
+  name: Non Existent Reading
+  type: graphql
+  seq: 18
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      query GetReading($id: ID!) {
+        reading(id: $id) {
+          id
+          date
+        }
+      }
+    variables: |-
+      {
+        "id": "000000000000000000000000"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Non-existent reading returns error', function () {
+            expect(res.getBody().errors).to.not.be.undefined;
+        });
+
+        test('Non-existent reading error code is NOT_FOUND', function () {
+            expect(res.getBody().errors[0].extensions.code).to.equal('NOT_FOUND');
+        });
+
+        test('Non-existent reading error status is 404', function () {
+            expect(res.getBody().errors[0].extensions.status).to.equal(404);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

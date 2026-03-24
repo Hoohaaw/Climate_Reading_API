@@ -1,0 +1,40 @@
+info:
+  name: Delete Non Existent Reading
+  type: graphql
+  seq: 20
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    query: |-
+      mutation DeleteReading($id: ID!) {
+        deleteReading(id: $id)
+      }
+    variables: |-
+      {
+        "id": "000000000000000000000000"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Delete non-existent reading returns error', function () {
+            expect(res.getBody().errors).to.not.be.undefined;
+        });
+
+        test('Delete non-existent reading error code is NOT_FOUND', function () {
+            expect(res.getBody().errors[0].extensions.code).to.equal('NOT_FOUND');
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

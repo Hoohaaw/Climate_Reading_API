@@ -1,0 +1,54 @@
+info:
+  name: Readings Filtered By City
+  type: graphql
+  seq: 14
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      query ReadingsByCity($city: String, $limit: Int) {
+        readings(city: $city, limit: $limit) {
+          id
+          date
+          averageTemperature
+          city {
+            name
+          }
+        }
+      }
+    variables: |-
+      {
+        "city": "Stockholm",
+        "limit": 5
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Status is 200', function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Returns array of readings for Stockholm', function () {
+            expect(res.getBody().data.readings).to.be.an('array');
+        });
+
+        test('Readings filtered by city are not empty', function () {
+            expect(res.getBody().data.readings.length).to.be.above(0);
+        });
+
+        test('All readings belong to Stockholm', function () {
+            res.getBody().data.readings.forEach(r => {
+                expect(r.city.name).to.equal('Stockholm');
+            });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

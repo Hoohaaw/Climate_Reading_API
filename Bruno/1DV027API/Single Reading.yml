@@ -1,0 +1,53 @@
+info:
+  name: Single Reading
+  type: graphql
+  seq: 16
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      query GetReading($id: ID!) {
+        reading(id: $id) {
+          id
+          date
+          averageTemperature
+          averageTemperatureUncertainty
+          city {
+            name
+            country {
+              name
+            }
+          }
+        }
+      }
+    variables: |-
+      {
+        "id": "{{readingId}}"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Status is 200', function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Returns single reading with correct id', function () {
+            expect(res.getBody().data.reading.id).to.equal(bru.getVar('readingId'));
+        });
+
+        test('Reading has nested city and country', function () {
+            const reading = res.getBody().data.reading;
+            expect(reading.city).to.have.property('name');
+            expect(reading.city.country).to.have.property('name');
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,57 @@
+info:
+  name: Readings Filtered By Country
+  type: graphql
+  seq: 13
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  body:
+    query: |-
+      query ReadingsByCountry($country: String, $limit: Int) {
+        readings(country: $country, limit: $limit) {
+          id
+          date
+          averageTemperature
+          city {
+            name
+            country {
+              name
+            }
+          }
+        }
+      }
+    variables: |-
+      {
+        "country": "Sweden",
+        "limit": 5
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Status is 200', function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test('Returns array of readings', function () {
+            expect(res.getBody().data.readings).to.be.an('array');
+        });
+
+        test('Readings filtered by country are not empty', function () {
+            expect(res.getBody().data.readings.length).to.be.above(0);
+        });
+
+        test('Readings belong to Sweden', function () {
+            res.getBody().data.readings.forEach(r => {
+                expect(r.city.country.name).to.equal('Sweden');
+            });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

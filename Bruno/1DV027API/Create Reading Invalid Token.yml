@@ -1,0 +1,50 @@
+info:
+  name: Create Reading Invalid Token
+  type: graphql
+  seq: 22
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  headers:
+    - name: Authorization
+      value: Bearer invalidtoken123
+      enabled: true
+  body:
+    query: |-
+      mutation CreateReading($input: ReadingInput!) {
+        createReading(input: $input) {
+          id
+        }
+      }
+    variables: |-
+      {
+        "input": {
+          "cityId": "{{cityId}}",
+          "date": "2024-01-01",
+          "averageTemperature": 10.0
+        }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Invalid token createReading returns error', function () {
+            expect(res.getBody().errors).to.be.an('array');
+        });
+
+        test('Invalid token error code is UNAUTHORIZED', function () {
+            expect(res.getBody().errors[0].extensions.code).to.equal('UNAUTHORIZED');
+        });
+
+        test('Invalid token error status is 401', function () {
+            expect(res.getBody().errors[0].extensions.status).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

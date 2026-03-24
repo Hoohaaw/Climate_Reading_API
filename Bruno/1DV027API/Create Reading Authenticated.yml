@@ -1,0 +1,63 @@
+info:
+  name: Create Reading Authenticated
+  type: graphql
+  seq: 15
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    query: |-
+      mutation CreateReading($input: ReadingInput!) {
+        createReading(input: $input) {
+          id
+          date
+          averageTemperature
+          averageTemperatureUncertainty
+          city {
+            name
+          }
+        }
+      }
+    variables: |-
+      {
+        "input": {
+          "cityId": "{{cityId}}",
+          "date": "2024-06-01",
+          "averageTemperature": 18.5,
+          "averageTemperatureUncertainty": 0.3
+        }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Authenticated createReading returns no errors', function () {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+
+        test('Created reading has an id', function () {
+            const reading = res.getBody().data.createReading;
+            expect(reading).to.have.property('id');
+            bru.setVar('readingId', reading.id);
+        });
+
+        test('Created reading has correct date', function () {
+            expect(res.getBody().data.createReading.date).to.include('2024');
+        });
+
+        test('Created reading has nested city', function () {
+            expect(res.getBody().data.createReading.city).to.have.property('name');
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

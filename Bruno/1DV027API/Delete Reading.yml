@@ -1,0 +1,40 @@
+info:
+  name: Delete Reading
+  type: graphql
+  seq: 21
+
+graphql:
+  method: POST
+  url: https://climate-reading-api.vercel.app/graphql
+  headers:
+    - name: Authorization
+      value: Bearer {{token}}
+      enabled: true
+  body:
+    query: |-
+      mutation DeleteReading($id: ID!) {
+        deleteReading(id: $id)
+      }
+    variables: |-
+      {
+        "id": "{{readingId}}"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test('Authenticated deleteReading returns no errors', function () {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+
+        test('Delete returns true', function () {
+            expect(res.getBody().data.deleteReading).to.equal(true);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
