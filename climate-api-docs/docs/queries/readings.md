@@ -1,36 +1,64 @@
-readings# Readings
+---
+sidebar_position: 1
+---
 
-Returns a list of readings with optional filters and pagination.
+# readings
+
+Returns a list of temperature readings. Supports filtering by city or country name, and pagination via `limit` and `offset`.
 
 **Authentication required:** No
 
 ## Query
-​```graphql
+
+```graphql
 query {
-  readings(limit: 10, offset: 0) {
+  readings(city: "Stockholm", limit: 5, offset: 0) {
     id
     date
     averageTemperature
+    averageTemperatureUncertainty
+    city {
+      name
+    }
   }
 }
-​```
+```
 
 ## Arguments
-| Argument | Type | Required | Description |
-|---|---|---|---|
-| city | String | No | Filter by city name |
-| country | String | No | Filter by country name |
-| limit | Int | No | Default 100 |
-| offset | Int | No | Default 0 |
+
+| Argument | Type | Required | Default | Description |
+|---|---|---|---|---|
+| city | String | No | — | Filter by city name |
+| country | String | No | — | Filter by country name |
+| limit | Int | No | 100 | Max number of results |
+| offset | Int | No | 0 | Number of results to skip |
 
 ## Example Response
-​```json
+
+```json
 {
   "data": {
-    "readings": [...]
+    "readings": [
+      {
+        "id": "64b1234abc...",
+        "date": "1719792000000",
+        "averageTemperature": 18.4,
+        "averageTemperatureUncertainty": 0.3,
+        "city": {
+          "name": "Stockholm"
+        }
+      }
+    ]
   }
 }
-​```
+```
+
+:::note
+The `date` field is returned as a Unix timestamp in milliseconds. Convert with `new Date(parseInt(date))`.
+:::
 
 ## Errors
-None — returns empty array if no results found.
+
+| Code | Status | Reason |
+|---|---|---|
+| NOT_FOUND | 404 | The specified `city` or `country` filter does not exist |
